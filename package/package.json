@@ -1,0 +1,60 @@
+{
+  "name": "react-native-avatar-crop",
+  "version": "0.0.3",
+  "description": "Crop component to crop profile images",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vemarav/react-native-avatar-crop.git"
+  },
+  "author": {
+    "name": "Aravind Vemula",
+    "email": "vemarav@outlook.in"
+  },
+  "license": "MIT",
+  "dependencies": {},
+  "peerDependencies": {
+    "@react-native-community/image-editor": "*",
+    "@react-native-community/masked-view": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-gesture-handler": "*"
+  },
+  "devDependencies": {
+    "@react-native-community/image-editor": "*",
+    "@react-native-community/masked-view": "*",
+    "@types/react": "^17.0.15",
+    "@types/react-native": "^0.64.12",
+    "react-native-gesture-handler": "^1.10.3",
+    "typescript": "^4.3.5"
+  },
+  "jest": {
+    "preset": "react-native",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
+  "keywords": [
+    "react-native",
+    "react",
+    "crop",
+    "image",
+    "cropper",
+    "avatar"
+  ],
+  "bugs": {
+    "url": "https://github.com/ggunti/react-native-avatar-crop/issues"
+  },
+  "homepage": "https://github.com/vemarav/react-native-avatar-crop"
+}
