@@ -25,6 +25,8 @@ import {
   computeScaledWidth,
   computeScaledHeight,
   computeTranslation,
+  getOrientation,
+  Orientation,
 } from '../utils';
 
 const {width: DEFAULT_WIDTH} = Dimensions.get('window');
@@ -89,18 +91,52 @@ const Crop = (props: CropProps): JSX.Element => {
   const [minZoom, setMinZoom] = useState(1);
 
   const init = () => {
-    // image aspect ratio
-    const _imageRatio = getRatio(imageSize);
-    // since image contains within the bounds of width,
-    // this ratio is required
-    const _widthToCropWidthRatio = width / cropArea.width;
-    // fit image to crop area horizontally or vertically
-    const _initialScale = _imageRatio / _widthToCropWidthRatio;
+    let _initialScale = 1;
+    const _componentRatio = getRatio({width, height});
+    const _componentOrientation = getOrientation({width, height});
+    const _imageRatio = getRatio(imageSize); // image aspect ratio
+    const _imageOrientation = getOrientation(imageSize);
+    const _cropRatio = getRatio(cropArea); // crop aspect ratio
+    const _cropOrientation = getOrientation(cropArea);
+
+    if (_cropOrientation === Orientation.landscape) {
+      if (_imageOrientation === Orientation.landscape) {
+        const widthToCropWidthRatio = width / cropArea.width;
+        _initialScale = _imageRatio / widthToCropWidthRatio / _cropRatio;
+      } else {
+        const heightToCropHeightRatio = height / cropArea.height;
+        _initialScale =
+          _imageRatio / heightToCropHeightRatio / (1 / _cropRatio);
+      }
+    } else if (_cropOrientation === Orientation.portrait) {
+      if (_imageOrientation === Orientation.portrait) {
+        const heightToCropHeightRatio = height / cropArea.height;
+        _initialScale = _imageRatio / heightToCropHeightRatio / _cropRatio;
+      } else if (_imageOrientation === Orientation.landscape) {
+        const widthToCropWidthRatio = width / cropArea.width;
+        _initialScale = _imageRatio / widthToCropWidthRatio / (1 / _cropRatio);
+      } else {
+        const heightToCropHeightRatio = height / cropArea.height;
+        _initialScale = _imageRatio / heightToCropHeightRatio;
+      }
+    } else {
+      if (_imageOrientation === Orientation.landscape) {
+        const widthToCropWidthRatio = width / cropArea.width;
+        _initialScale = _imageRatio / widthToCropWidthRatio;
+      } else {
+        const heightToCropHeightRatio = height / cropArea.height;
+        _initialScale = _imageRatio / heightToCropHeightRatio;
+      }
+    }
+
     setMinZoom(_initialScale);
+
     if (resizeMode === 'contain') {
+      _lastScale = minZoom;
       scale.setValue(minZoom);
     } else {
-      scale.setValue(_imageRatio);
+      _lastScale = _imageRatio / (1 / _componentRatio);
+      scale.setValue(_lastScale);
     }
 
     // reset translation
@@ -319,6 +355,9 @@ const Crop = (props: CropProps): JSX.Element => {
     }
   };
 
+  const borderRadius =
+    cropShape === 'circle' ? Math.max(cropArea.height, cropArea.width) : 0;
+
   return (
     <PinchGestureHandler
       onGestureEvent={onPinchGestureEvent}
@@ -342,10 +381,7 @@ const Crop = (props: CropProps): JSX.Element => {
                     styles.transparentMask,
                     {
                       ...cropArea,
-                      borderRadius:
-                        cropShape === 'circle'
-                          ? Math.max(cropArea.height, cropArea.width)
-                          : 0,
+                      borderRadius,
                     },
                   ]}
                 />
@@ -378,11 +414,8 @@ const Crop = (props: CropProps): JSX.Element => {
               style={{
                 ...cropArea,
                 borderWidth: borderWidth,
-                borderRadius:
-                  cropShape === 'circle'
-                    ? Math.max(cropArea.height, cropArea.width)
-                    : 0,
-                borderColor: backgroundColor,
+                borderRadius,
+                borderColor: 'red', //backgroundColor,
               }}
             />
           </View>

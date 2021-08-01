@@ -11,6 +11,7 @@ export type Range = {
 export enum Orientation {
   landscape,
   portrait,
+  even,
 }
 
 const round = (num: number, precision: number) => {
@@ -35,6 +36,16 @@ export const isInRange = (value: number, max: number, min: number): boolean =>
 
 export const getRatio = ({width, height}: Size) =>
   Math.max(width, height) / Math.min(width, height);
+
+export const getOrientation = ({width, height}: Size): Orientation => {
+  if (width > height) {
+    return Orientation.landscape;
+  } else if (width < height) {
+    return Orientation.portrait;
+  } else {
+    return Orientation.even;
+  }
+};
 
 export const computeScale = (
   current: number,
