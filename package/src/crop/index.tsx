@@ -93,7 +93,6 @@ const Crop = (props: CropProps): JSX.Element => {
   const init = () => {
     let _initialScale = 1;
     const _componentRatio = getRatio({width, height});
-    const _componentOrientation = getOrientation({width, height});
     const _imageRatio = getRatio(imageSize); // image aspect ratio
     const _imageOrientation = getOrientation(imageSize);
     const _cropRatio = getRatio(cropArea); // crop aspect ratio
@@ -415,7 +414,7 @@ const Crop = (props: CropProps): JSX.Element => {
                 ...cropArea,
                 borderWidth: borderWidth,
                 borderRadius,
-                borderColor: 'red', //backgroundColor,
+                borderColor: backgroundColor,
               }}
             />
           </View>
