@@ -1,6 +1,6 @@
 {
   "name": "react-native-avatar-crop",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Crop component to crop profile images",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

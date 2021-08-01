@@ -15,12 +15,18 @@ type PickImageProps = {
 
 const PickImage = ({navigation}: PickImageProps): JSX.Element => {
   const styles = StyleSheet.create({
-    center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     btn: {
-      backgroundColor: '#0275d8',
-      borderRadius: 4,
-      paddingHorizontal: 40,
+      justifyContent: 'center',
+      marginHorizontal: 20,
+      backgroundColor: '#0275D8',
       paddingVertical: 10,
+      paddingHorizontal: 30,
+      borderRadius: 4,
     },
     btnText: {
       fontSize: 18,

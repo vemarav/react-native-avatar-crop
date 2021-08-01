@@ -17,7 +17,7 @@
     "@react-navigation/stack": "^5.14.5",
     "react": "17.0.1",
     "react-native": "0.64.2",
-    "react-native-avatar-crop": "^0.0.3",
+    "react-native-avatar-crop": "^0.0.4",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-image-picker": "^4.0.6",
     "react-native-image-size": "^1.1.3",

@@ -1,8 +1,8 @@
+import ImageEditor from '@react-native-community/image-editor';
 import MaskedView from '@react-native-community/masked-view';
 import React, {useState} from 'react';
 import {useEffect} from 'react';
-import {StyleSheet} from 'react-native';
-import {Animated, View, Dimensions} from 'react-native';
+import {Animated, View, Dimensions, StyleSheet} from 'react-native';
 import {
   State,
   PinchGestureHandler,
@@ -11,34 +11,44 @@ import {
 } from 'react-native-gesture-handler';
 
 import {
-  computeScale,
-  computeTranslationX,
+  Size,
+  assert,
   getAlpha,
   getRatio,
   getValue,
   isInRange,
+  computeSize,
+  computeScale,
+  computeOffset,
+  translateRangeX,
+  translateRangeY,
+  computeScaledWidth,
+  computeScaledHeight,
+  computeTranslation,
 } from '../utils';
 
 const {width: DEFAULT_WIDTH} = Dimensions.get('window');
-
-enum Orientation {
-  landscape,
-  portrait,
-}
+const DEFAULT_ANIM_DURATION = 180;
 
 export type CropProps = {
   source: {uri: string};
   cropShape?: 'rect' | 'circle';
-  cropArea?: {width: number; height: number};
+  cropArea?: Size;
   borderWidth?: number;
   backgroundColor?: string;
   opacity?: number;
   width?: number;
   height?: number;
-  imageSize: {width: number; height: number};
+  imageSize: Size;
   maxZoom?: number;
   resizeMode?: 'contain' | 'cover';
-  onCrop: (params: {callback: () => string}) => void;
+  onCrop: (
+    cropCallback: (quality?: number) => Promise<{
+      uri: string;
+      width: number;
+      height: number;
+    }>,
+  ) => void;
 };
 
 const Crop = (props: CropProps): JSX.Element => {
@@ -57,21 +67,13 @@ const Crop = (props: CropProps): JSX.Element => {
     onCrop,
   } = props;
 
-  if (!isInRange(opacity, 1, 0)) {
-    throw new Error('opacity must be between 0 and 1');
-  }
-
-  if (maxZoom < 1) {
-    throw new Error('maxZoom must be greater than 1');
-  }
-
-  if (width < cropArea.width) {
-    throw new Error('width must be greater than crop area width');
-  }
-
-  if (height < cropArea.height) {
-    throw new Error('height must be greater than crop area height');
-  }
+  assert(!isInRange(opacity, 1, 0), 'opacity must be between 0 and 1');
+  assert(maxZoom < 1, 'maxZoom must be greater than 1');
+  assert(width < cropArea.width, 'width must be greater than crop area width');
+  assert(
+    height < cropArea.height,
+    'height must be greater than crop area height',
+  );
 
   let _lastScale = 1;
   let _lastTranslate = {x: 0, y: 0};
@@ -87,8 +89,12 @@ const Crop = (props: CropProps): JSX.Element => {
   const [minZoom, setMinZoom] = useState(1);
 
   const init = () => {
+    // image aspect ratio
     const _imageRatio = getRatio(imageSize);
+    // since image contains within the bounds of width,
+    // this ratio is required
     const _widthToCropWidthRatio = width / cropArea.width;
+    // fit image to crop area horizontally or vertically
     const _initialScale = _imageRatio / _widthToCropWidthRatio;
     setMinZoom(_initialScale);
     if (resizeMode === 'contain') {
@@ -100,9 +106,9 @@ const Crop = (props: CropProps): JSX.Element => {
     // reset translation
     translateX.setValue(0);
     translateY.setValue(0);
-
     addScaleListener();
     addTranslationListeners();
+    onCrop(cropImage);
 
     return () => {
       removeScaleListeners();
@@ -132,9 +138,54 @@ const Crop = (props: CropProps): JSX.Element => {
     trackScale.removeAllListeners();
   };
 
+  const resetTranslate = () => {
+    // after scaling if crop area has black space then
+    // it will reset to fit image inside the crop area
+    const scaleValue = getValue(scale);
+    if (scaleValue < _lastScale) {
+      const translateXValue = getValue(translateX);
+      const translateYValue = getValue(translateY);
+      const {max: maxTranslateX, min: minTranslateX} = translateRangeX(
+        imageSize,
+        cropArea,
+        width,
+        scaleValue,
+        minZoom,
+      );
+
+      if (!isInRange(translateXValue, maxTranslateX, minTranslateX)) {
+        const toValue = translateXValue > 0 ? maxTranslateX : minTranslateX;
+        Animated.timing(translateX, {
+          toValue,
+          duration: DEFAULT_ANIM_DURATION,
+          useNativeDriver: true,
+        }).start(() => translateX.setValue(toValue));
+      }
+
+      const {max: maxTranslateY, min: minTranslateY} = translateRangeY(
+        imageSize,
+        cropArea,
+        width,
+        scaleValue,
+        minZoom,
+      );
+
+      if (!isInRange(translateYValue, maxTranslateY, minTranslateY)) {
+        const toValue = translateYValue > 0 ? maxTranslateY : minTranslateY;
+        Animated.timing(translateY, {
+          toValue,
+          duration: DEFAULT_ANIM_DURATION,
+          useNativeDriver: true,
+        }).start(() => translateY.setValue(toValue));
+      }
+    }
+  };
+
   const onPinchGestureStateChange = ({nativeEvent}: GestureEvent) => {
     if (nativeEvent.oldState === State.ACTIVE) {
-      // user stop pinch gesture by any reason
+      resetTranslate();
+      // reset translate compares scale to last scale
+      // so updating the scale after resetting translate values
       _lastScale = getValue(scale);
     }
   };
@@ -159,33 +210,29 @@ const Crop = (props: CropProps): JSX.Element => {
     },
   );
 
-  const maxTranslateX = () => {
-    const _imageOrientation =
-      imageSize.width > imageSize.height
-        ? Orientation.landscape
-        : Orientation.portrait;
-    const _imageWidth =
-      _imageOrientation === Orientation.landscape ? width : cropArea.width;
-    const _imageScale =
-      _imageOrientation === Orientation.landscape
-        ? getValue(scale)
-        : getValue(scale) / minZoom;
-
-    // finding the current width of the image (after scaling down or up)
-    const _scaledWidth = _imageWidth * _imageScale;
-
-    // need half the size as translation happens from -ve to +ve range,
-    // and -ve and +ve widths are always equal
-    const _imageOutOfCropArea = (_scaledWidth - cropArea.width) / 2;
-    return _imageOutOfCropArea;
-  };
-
   const addTranslationListeners = () => {
     trackTranslationX.addListener(({value}: {value: number}) => {
-      const max = maxTranslateX();
-      const min = -max;
+      const {max, min} = translateRangeX(
+        imageSize,
+        cropArea,
+        width,
+        getValue(scale),
+        minZoom,
+      );
       const last = _lastTranslate.x;
-      translateX.setValue(computeTranslationX(value, last, max, min));
+      translateX.setValue(computeTranslation(value, last, max, min));
+    });
+
+    trackTranslationY.addListener(({value}: {value: number}) => {
+      const {max, min} = translateRangeY(
+        imageSize,
+        cropArea,
+        width,
+        getValue(scale),
+        minZoom,
+      );
+      const last = _lastTranslate.y;
+      translateY.setValue(computeTranslation(value, last, max, min));
     });
   };
 
@@ -201,6 +248,76 @@ const Crop = (props: CropProps): JSX.Element => {
   };
 
   // end: pan gesture handler
+
+  const cropImage = async (
+    quality: number = 1,
+  ): Promise<{uri: string; height: number; width: number}> => {
+    assert(!isInRange(quality, 1, 0), 'quality must be between 0 and 1');
+
+    const scaleValue = getValue(scale);
+    const translateXValue = getValue(translateX);
+    const translateYValue = getValue(translateY);
+
+    const scaledWidth = computeScaledWidth(
+      width,
+      imageSize,
+      cropArea,
+      scaleValue,
+      minZoom,
+    );
+
+    const scaledHeight = computeScaledHeight(
+      height,
+      imageSize,
+      cropArea,
+      scaleValue,
+      minZoom,
+    );
+    const scaleMultiplier = imageSize.width / scaledWidth;
+
+    const {max: maxTranslateX} = translateRangeX(
+      imageSize,
+      cropArea,
+      width,
+      scaleValue,
+      minZoom,
+    );
+
+    const {max: maxTranslateY} = translateRangeY(
+      imageSize,
+      cropArea,
+      width,
+      scaleValue,
+      minZoom,
+    );
+
+    const offset = computeOffset(
+      {width: scaledWidth, height: scaledHeight},
+      imageSize,
+      {x: translateXValue, y: translateYValue},
+      maxTranslateX,
+      maxTranslateY,
+      scaleMultiplier,
+    );
+
+    const size = computeSize(cropArea, scaleMultiplier);
+    const emitSize = {
+      width: size.width * quality,
+      height: size.height * quality,
+    };
+
+    try {
+      const croppedImageUri = await ImageEditor.cropImage(source.uri, {
+        offset,
+        size,
+        displaySize: emitSize,
+      });
+      return {uri: croppedImageUri, ...emitSize};
+    } catch (e) {
+      console.error('Failed to crop image!');
+      throw e;
+    }
+  };
 
   return (
     <PinchGestureHandler
