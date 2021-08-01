@@ -43,9 +43,11 @@ const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
       <Crop
         source={{uri}}
         imageSize={{width, height}}
-        width={331}
-        height={331}
-        cropArea={{width: 232, height: 232}}
+        width={300}
+        height={300}
+        cropArea={{width: 200, height: 150}}
+        cropShape={'rect'}
+        resizeMode={'contain'}
         onCrop={cropCallback => (crop = cropCallback)}
       />
       <View style={styles.padding20} />
