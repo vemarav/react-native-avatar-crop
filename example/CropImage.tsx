@@ -1,7 +1,15 @@
 import React from 'react';
-import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  Dimensions,
+} from 'react-native';
 import Routes from './Routes';
 import Crop from 'react-native-avatar-crop';
+
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 type CropImageProps = {
   route: {params: {uri: string; width: number; height: number}};
@@ -43,11 +51,9 @@ const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
       <Crop
         source={{uri}}
         imageSize={{width, height}}
-        width={300}
-        height={300}
-        cropArea={{width: 200, height: 150}}
-        cropShape={'rect'}
-        resizeMode={'contain'}
+        width={SCREEN_WIDTH}
+        height={SCREEN_WIDTH}
+        cropArea={{width: SCREEN_WIDTH / 1.3, height: SCREEN_WIDTH / 1.3}}
         onCrop={cropCallback => (crop = cropCallback)}
       />
       <View style={styles.padding20} />

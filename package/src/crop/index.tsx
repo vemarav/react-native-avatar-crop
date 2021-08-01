@@ -358,12 +358,15 @@ const Crop = (props: CropProps): JSX.Element => {
     cropShape === 'circle' ? Math.max(cropArea.height, cropArea.width) : 0;
 
   return (
-    <PinchGestureHandler
-      onGestureEvent={onPinchGestureEvent}
-      onHandlerStateChange={onPinchGestureStateChange}>
-      <PanGestureHandler
-        onGestureEvent={onPanGestureEvent}
-        onHandlerStateChange={onPanGestureStateChange}>
+    <PanGestureHandler
+      minPointers={1}
+      maxPointers={1}
+      onGestureEvent={onPanGestureEvent}
+      onHandlerStateChange={onPanGestureStateChange}>
+      <PinchGestureHandler
+        minPointers={2}
+        onGestureEvent={onPinchGestureEvent}
+        onHandlerStateChange={onPinchGestureStateChange}>
         <View style={{width, height, backgroundColor}}>
           <MaskedView
             style={styles.mask}
@@ -419,8 +422,8 @@ const Crop = (props: CropProps): JSX.Element => {
             />
           </View>
         </View>
-      </PanGestureHandler>
-    </PinchGestureHandler>
+      </PinchGestureHandler>
+    </PanGestureHandler>
   );
 };
 
