@@ -2,4 +2,6 @@
 
 ## Demo
 
-![video](https://github.com/vemarav/react-native-avatar-crop/tree/main/screenshots/demo.mov)
+<br>
+
+![video](/screenshots/demo.gif)
