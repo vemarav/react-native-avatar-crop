@@ -52,6 +52,10 @@ see full example [here](https://github.com/vemarav/react-native-avatar-crop/blob
 
    Feel free to contribute, hosted on ❤️ with Github.
 
+## TODO
+
+- [ ] Add rotation support
+
 ## LICENSE
 
 Package published under [MIT License](https://github.com/vemarav/subdomains/blob/master/LICENSE)

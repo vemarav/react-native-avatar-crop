@@ -20,7 +20,7 @@ check [dependencies](https://www.npmjs.com/package/react-native-avatar-crop?acti
     width={SCREEN_WIDTH}
     height={SCREEN_WIDTH}
     cropArea={{
-      width: SCREEN_WIDTH / 1.3, 
+      width: SCREEN_WIDTH / 1.3,
       height: SCREEN_WIDTH / 1.3,
     }}
     borderWidth={0}
@@ -38,18 +38,23 @@ see full example [here](https://github.com/vemarav/react-native-avatar-crop/blob
 
 1. Whether you are a novice or experienced software developer, all contributions and suggestions are welcome!
 
-    Clone repo
+   Clone repo
 
-    git clone https://github.com/vemarav/react-native-avatar-crop.git
+   git clone https://github.com/vemarav/react-native-avatar-crop.git
+
 2. Add features or bug fixes
 
 3. Make a Pull Request
 
-    OR
+   OR
 
-    Report a bug [here](https://github.com/vemarav/react-native-avatar-crop/issues/new/choose)
+   Report a bug [here](https://github.com/vemarav/react-native-avatar-crop/issues/new/choose)
 
-    Feel free to contribute, hosted on ❤️ with Github.
+   Feel free to contribute, hosted on ❤️ with Github.
+
+## TODO
+
+- [ ] Add rotation support
 
 ## LICENSE
 
@@ -64,7 +69,6 @@ Package published under [MIT License](https://github.com/vemarav/subdomains/blob
 Please use following button to star the, so it can reach others too
 
 [![](https://img.shields.io/github/stars/vemarav/react-native-avatar-crop.svg?label=Stars&style=social)](https://github.com/vemarav/react-native-avatar-crop)
-
 
 ## SOCIAL
 
