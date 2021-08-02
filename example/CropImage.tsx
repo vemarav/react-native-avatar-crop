@@ -1,25 +1,20 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  Dimensions,
-} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Text, Dimensions} from 'react-native';
 import Routes from './Routes';
-import Crop from './src';
+import Crop from 'react-native-avatar-crop';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 type CropImageProps = {
   route: {params: {uri: string; width: number; height: number}};
   navigation: {
-    navigate: (name: string, params?: {[key: string]: any}) => {};
+    navigate: (name: string, params?: {[key: string]: string | number}) => {};
   };
 };
 
 const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
-  const {uri, width, height} = route.params;
+  const {uri} = route.params;
+
   const styles = StyleSheet.create({
     center: {
       flex: 1,
@@ -44,13 +39,14 @@ const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
       padding: 20,
     },
   });
+
   let crop = async (quality?: number) => ({uri: '', width: 0, height: 0});
+
 
   return (
     <View style={styles.center}>
       <Crop
         source={{uri}}
-        imageSize={{width, height}}
         width={SCREEN_WIDTH}
         height={SCREEN_WIDTH}
         cropArea={{width: SCREEN_WIDTH / 1.3, height: SCREEN_WIDTH / 1.3}}
