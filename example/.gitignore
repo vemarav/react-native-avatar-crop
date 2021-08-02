@@ -59,4 +59,4 @@ buck-out/
 /ios/Pods/
 
 # package
-src/
+/src/
