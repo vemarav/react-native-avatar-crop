@@ -1,6 +1,9 @@
+import ImageSize from 'react-native-image-size';
+
 export type Size = {
   width: number;
   height: number;
+  rotation?: number;
 };
 
 export type Range = {
@@ -22,6 +25,19 @@ const round = (num: number, precision: number) => {
   }
 };
 
+export const computeImageSize = async (uri: string): Promise<Size> => {
+  try {
+    const {width, height, rotation} = await ImageSize.getSize(uri);
+    if (rotation === 90 || rotation === 270) {
+      return {width: height, height: width, rotation};
+    } else {
+      return {width, height, rotation};
+    }
+  } catch (e) {
+    throw e;
+  }
+};
+
 export const getAlpha = (opacity: number): string => {
   // #12345678 78 is the alpha value and the range is (0 < alpha < 100)
   if (opacity === 1) {
@@ -31,11 +47,9 @@ export const getAlpha = (opacity: number): string => {
   }
 };
 
-export const isInRange = (value: number, max: number, min: number): boolean =>
-  min <= value && value <= max;
+export const isInRange = (value: number, max: number, min: number): boolean => min <= value && value <= max;
 
-export const getRatio = ({width, height}: Size) =>
-  Math.max(width, height) / Math.min(width, height);
+export const getRatio = ({width, height}: Size) => Math.max(width, height) / Math.min(width, height);
 
 export const getOrientation = ({width, height}: Size): Orientation => {
   if (width > height) {
@@ -47,12 +61,7 @@ export const getOrientation = ({width, height}: Size): Orientation => {
   }
 };
 
-export const computeScale = (
-  current: number,
-  last: number,
-  maxZoom: number,
-  minZoom: number,
-): number => {
+export const computeScale = (current: number, last: number, maxZoom: number, minZoom: number): number => {
   const next = last + current - 1;
 
   if (isInRange(next, maxZoom, minZoom)) {
@@ -66,12 +75,7 @@ export const computeScale = (
   return minZoom;
 };
 
-export const computeTranslation = (
-  current: number,
-  last: number,
-  max: number,
-  min: number,
-): number => {
+export const computeTranslation = (current: number, last: number, max: number, min: number): number => {
   const next = current + last;
 
   if (isInRange(next, max, min)) {
@@ -95,22 +99,11 @@ export const translateRangeX = (
   minZoom: number,
 ): Range => {
   // returns the range in which user can pan image horizontally
-  const _imageOrientation =
-    imageSize.width > imageSize.height
-      ? Orientation.landscape
-      : Orientation.portrait;
-  const _imageWidth =
-    _imageOrientation === Orientation.landscape ? width : cropArea.width;
-  const _imageScale =
-    _imageOrientation === Orientation.landscape ? scale : scale / minZoom;
-
-  // finding the current width of the image (after scaling down or up)
+  const _imageOrientation = imageSize.width > imageSize.height ? Orientation.landscape : Orientation.portrait;
+  const _imageWidth = _imageOrientation === Orientation.landscape ? width : cropArea.width;
+  const _imageScale = _imageOrientation === Orientation.landscape ? scale : scale / minZoom;
   const _scaledWidth = _imageWidth * _imageScale;
-
-  // need half the size as translation happens from -ve to +ve range,
-  // and -ve and +ve widths are always equal
   const _imageOutOfCropArea = (_scaledWidth - cropArea.width) / 2;
-
   return {max: _imageOutOfCropArea, min: -_imageOutOfCropArea};
 };
 
@@ -122,22 +115,11 @@ export const translateRangeY = (
   minZoom: number,
 ): Range => {
   // returns the range in which user can pan image horizontally
-  const _imageOrientation =
-    imageSize.width < imageSize.height
-      ? Orientation.landscape
-      : Orientation.portrait;
-  const _imageHeight =
-    _imageOrientation === Orientation.landscape ? height : cropArea.height;
-  const _imageScale =
-    _imageOrientation === Orientation.landscape ? scale : scale / minZoom;
-
-  // finding the current width of the image (after scaling down or up)
+  const _imageOrientation = imageSize.width < imageSize.height ? Orientation.landscape : Orientation.portrait;
+  const _imageHeight = _imageOrientation === Orientation.landscape ? height : cropArea.height;
+  const _imageScale = _imageOrientation === Orientation.landscape ? scale : scale / minZoom;
   const _scaledHeight = _imageHeight * _imageScale;
-
-  // need half the size as translation happens from -ve to +ve range,
-  // and -ve and +ve widths are always equal
   const _imageOutOfCropArea = (_scaledHeight - cropArea.height) / 2;
-
   return {max: _imageOutOfCropArea, min: -_imageOutOfCropArea};
 };
 
@@ -152,9 +134,7 @@ export const computeScaledWidth = (
   scale: number,
   minZoom: number,
 ): number => {
-  return imageSize.width > imageSize.height
-    ? width * scale
-    : (cropArea.width * scale) / minZoom;
+  return imageSize.width > imageSize.height ? width * scale : (cropArea.width * scale) / minZoom;
 };
 
 export const computeScaledHeight = (
@@ -164,18 +144,15 @@ export const computeScaledHeight = (
   scale: number,
   minZoom: number,
 ): number => {
-  return imageSize.width < imageSize.height
-    ? height * scale
-    : (cropArea.height * scale) / minZoom;
+  return imageSize.width < imageSize.height ? height * scale : (cropArea.height * scale) / minZoom;
 };
 
-// computeOffset(
-//  {width: scaledWidth, height: scaledHeight},
-//  maxTranslateX,
-//  translate: {x: translateXValue, y: translateYValue}
-//  imageSize,
-// scaleMultiplier
-// );
+export const computeTranslate = (imageSize: Size, x: number, y: number) => {
+  if (imageSize.rotation === 90) return {x: -x, y: y};
+  if (imageSize.rotation === 180) return {x: -x, y: -y};
+  if (imageSize.rotation === 270) return {x: x, y: -y};
+  return {x, y};
+};
 
 export const computeOffset = (
   scaled: Size,
@@ -187,30 +164,37 @@ export const computeOffset = (
 ): {x: number; y: number} => {
   const initialOffsetX = scaled.width - maxTranslateX;
   const initialOffsetY = scaled.height - maxTranslateY;
-
-  const finalOffsetX =
-    imageSize.width - (initialOffsetX + translate.x) * multiplier;
-  const finalOffsetY =
-    imageSize.height - (initialOffsetY + translate.y) * multiplier;
-  return {x: round(finalOffsetX, 3), y: round(finalOffsetY, 3)};
+  const finalOffsetX = imageSize.width - (initialOffsetX + translate.x) * multiplier;
+  const finalOffsetY = imageSize.height - (initialOffsetY + translate.y) * multiplier;
+  const offset = {x: round(finalOffsetX, 3), y: round(finalOffsetY, 3)};
+  if (imageSize.rotation == 90 || imageSize.rotation === 270) {
+    return {x: offset.y, y: offset.x};
+  }
+  return offset;
 };
 
-export const computeSize = (cropArea: Size, multiplier: number): Size => {
+export const computeSize = (size: Size, multiplier: number): Size => {
   return {
-    width: round(cropArea.width * multiplier, 3),
-    height: round(cropArea.height * multiplier, 3),
+    width: round(size.width * multiplier, 3),
+    height: round(size.height * multiplier, 3),
   };
 };
 
 export default {
   assert,
+  getValue,
+  getRatio,
   getAlpha,
   isInRange,
-  getRatio,
+  Orientation,
+  computeSize,
   computeScale,
   computeOffset,
+  getOrientation,
   translateRangeX,
   translateRangeY,
+  computeTranslate,
+  computeImageSize,
   computeTranslation,
   computeScaledWidth,
   computeScaledHeight,

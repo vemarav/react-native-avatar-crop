@@ -1,15 +1,7 @@
 import React from 'react';
-import {useEffect} from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  Dimensions,
-} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Text, Dimensions} from 'react-native';
 import Routes from './Routes';
-import Crop from './src';
-import ImageSize from 'react-native-image-size';
+import Crop from 'react-native-avatar-crop';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
@@ -21,20 +13,7 @@ type CropImageProps = {
 };
 
 const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
-  const {uri, width, height} = route.params;
-
-  useEffect(() => {
-    // ImageSize.getSize(uri).then(({width, height, rotation}) => {
-    //   ImageResizer.createResizedImage(
-    //     uri,
-    //     width,
-    //     height,
-    //     'PNG',
-    //     1,
-    //     rotation,
-    //   ).then(console.log);
-    // });
-  });
+  const {uri} = route.params;
 
   const styles = StyleSheet.create({
     center: {
@@ -60,6 +39,7 @@ const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
       padding: 20,
     },
   });
+
   let crop = async (quality?: number) => ({uri: '', width: 0, height: 0});
 
   return (

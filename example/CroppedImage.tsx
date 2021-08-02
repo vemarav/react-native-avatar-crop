@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Dimensions,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-} from 'react-native';
+import {View, Dimensions, Image, StyleSheet, TouchableOpacity, Text} from 'react-native';
 
 export const getRatio = ({width, height}: {width: number; height: number}) =>
   Math.max(width, height) / Math.min(width, height);
