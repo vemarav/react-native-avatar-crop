@@ -42,6 +42,7 @@ const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
 
   let crop = async (quality?: number) => ({uri: '', width: 0, height: 0});
 
+
   return (
     <View style={styles.center}>
       <Crop
