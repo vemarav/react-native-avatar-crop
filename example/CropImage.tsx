@@ -1,4 +1,5 @@
 import React from 'react';
+import {useEffect} from 'react';
 import {
   View,
   StyleSheet,
@@ -8,18 +9,33 @@ import {
 } from 'react-native';
 import Routes from './Routes';
 import Crop from './src';
+import ImageSize from 'react-native-image-size';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 type CropImageProps = {
   route: {params: {uri: string; width: number; height: number}};
   navigation: {
-    navigate: (name: string, params?: {[key: string]: any}) => {};
+    navigate: (name: string, params?: {[key: string]: string | number}) => {};
   };
 };
 
 const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
   const {uri, width, height} = route.params;
+
+  useEffect(() => {
+    // ImageSize.getSize(uri).then(({width, height, rotation}) => {
+    //   ImageResizer.createResizedImage(
+    //     uri,
+    //     width,
+    //     height,
+    //     'PNG',
+    //     1,
+    //     rotation,
+    //   ).then(console.log);
+    // });
+  });
+
   const styles = StyleSheet.create({
     center: {
       flex: 1,
@@ -50,7 +66,6 @@ const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
     <View style={styles.center}>
       <Crop
         source={{uri}}
-        imageSize={{width, height}}
         width={SCREEN_WIDTH}
         height={SCREEN_WIDTH}
         cropArea={{width: SCREEN_WIDTH / 1.3, height: SCREEN_WIDTH / 1.3}}
