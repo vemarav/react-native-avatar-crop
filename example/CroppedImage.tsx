@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import {getRatio} from './src/utils';
+
+export const getRatio = ({width, height}: {width: number; height: number}) =>
+  Math.max(width, height) / Math.min(width, height);
 
 type CroppedImageProps = {
   route: {params: {uri: string; width: number; height: number}};

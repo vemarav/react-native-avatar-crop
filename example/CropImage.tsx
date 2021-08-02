@@ -7,7 +7,7 @@ import {
   Dimensions,
 } from 'react-native';
 import Routes from './Routes';
-import Crop from 'react-native-avatar-crop';
+import Crop from './src';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
