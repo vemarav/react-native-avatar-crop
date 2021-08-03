@@ -25,9 +25,10 @@ const CroppedImage = ({route, navigation}: CroppedImageProps) => {
       backgroundColor: '#454545',
     },
     image: {
-      width: SCREEN_WIDTH,
-      height: SCREEN_WIDTH * aspectRatio,
+      width: SCREEN_WIDTH / 1.3,
+      height: SCREEN_WIDTH / 1.3,
       resizeMode: 'contain',
+      borderRadius: SCREEN_WIDTH / 1.3,
     },
   });
 
