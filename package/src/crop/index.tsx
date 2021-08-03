@@ -1,13 +1,8 @@
-import ImageEditor from "@react-native-community/image-editor";
-import MaskedView from "@react-native-community/masked-view";
-import React, { useState, useEffect } from "react";
-import { Animated, View, Dimensions, StyleSheet } from "react-native";
-import {
-  State,
-  PinchGestureHandler,
-  PanGestureHandler,
-  GestureEvent,
-} from "react-native-gesture-handler";
+import ImageEditor from '@react-native-community/image-editor';
+import MaskedView from '@react-native-community/masked-view';
+import React, {useState, useEffect} from 'react';
+import {Animated, View, Dimensions, StyleSheet} from 'react-native';
+import {State, PinchGestureHandler, PanGestureHandler, GestureEvent} from 'react-native-gesture-handler';
 
 import {
   Size,
@@ -28,14 +23,14 @@ import {
   computeTranslation,
   computeScaledWidth,
   computeScaledHeight,
-} from "../utils";
+} from '../utils';
 
-const { width: DEFAULT_WIDTH } = Dimensions.get("window");
+const {width: DEFAULT_WIDTH} = Dimensions.get('window');
 const DEFAULT_ANIM_DURATION = 180;
 
 export type CropProps = {
-  source: { uri: string };
-  cropShape?: "rect" | "circle";
+  source: {uri: string};
+  cropShape?: 'rect' | 'circle';
   cropArea?: Size;
   borderWidth?: number;
   backgroundColor?: string;
@@ -43,41 +38,38 @@ export type CropProps = {
   width?: number;
   height?: number;
   maxZoom?: number;
-  resizeMode?: "contain" | "cover";
+  resizeMode?: 'contain' | 'cover';
   onCrop: (
     cropCallback: (quality?: number) => Promise<{
       uri: string;
       width: number;
       height: number;
-    }>
+    }>,
   ) => void;
 };
 
 const Crop = (props: CropProps): JSX.Element => {
   const {
     source,
-    cropShape = "circle",
-    cropArea = { width: DEFAULT_WIDTH, height: DEFAULT_WIDTH },
-    backgroundColor = "#FFFFFF",
+    cropShape = 'circle',
+    cropArea = {width: DEFAULT_WIDTH, height: DEFAULT_WIDTH},
+    backgroundColor = '#FFFFFF',
     opacity = 0.7,
     width = DEFAULT_WIDTH,
     height = DEFAULT_WIDTH,
     borderWidth = 2,
     maxZoom = 3,
-    resizeMode = "contain",
+    resizeMode = 'contain',
     onCrop,
   } = props;
 
-  assert(!isInRange(opacity, 1, 0), "opacity must be between 0 and 1");
-  assert(maxZoom < 1, "maxZoom must be greater than 1");
-  assert(width < cropArea.width, "width must be greater than crop area width");
-  assert(
-    height < cropArea.height,
-    "height must be greater than crop area height"
-  );
+  assert(!isInRange(opacity, 1, 0), 'opacity must be between 0 and 1');
+  assert(maxZoom < 1, 'maxZoom must be greater than 1');
+  assert(width < cropArea.width, 'width must be greater than crop area width');
+  assert(height < cropArea.height, 'height must be greater than crop area height');
 
   let _lastScale = 1;
-  let _lastTranslate = { x: 0, y: 0 };
+  let _lastTranslate = {x: 0, y: 0};
   const trackScale = new Animated.Value(_lastScale);
   const [scale] = useState(new Animated.Value(_lastScale));
   const [trackTranslationX] = useState(new Animated.Value(0));
@@ -86,16 +78,8 @@ const Crop = (props: CropProps): JSX.Element => {
   const [translateY] = useState(new Animated.Value(0));
   const [minZoom, setMinZoom] = useState(1);
 
-  const imageSize = { width: NaN, height: NaN, rotation: 0 };
-  const setImageSize = ({
-    width,
-    height,
-    rotation,
-  }: {
-    width: number;
-    height: number;
-    rotation?: number;
-  }) => {
+  const imageSize = {width: NaN, height: NaN, rotation: 0};
+  const setImageSize = ({width, height, rotation}: {width: number; height: number; rotation?: number}) => {
     imageSize.width = width;
     imageSize.height = height;
     imageSize.rotation = rotation || 0;
@@ -104,7 +88,7 @@ const Crop = (props: CropProps): JSX.Element => {
   const init = async () => {
     setImageSize(await computeImageSize(source.uri));
     let _initialScale = 1;
-    const _componentRatio = getRatio({ width, height });
+    const _componentRatio = getRatio({width, height});
     const _imageRatio = getRatio(imageSize); // image aspect ratio
     const _imageOrientation = getOrientation(imageSize);
     const _cropRatio = getRatio(cropArea); // crop aspect ratio
@@ -116,8 +100,7 @@ const Crop = (props: CropProps): JSX.Element => {
         _initialScale = _imageRatio / widthToCropWidthRatio / _cropRatio;
       } else {
         const heightToCropHeightRatio = height / cropArea.height;
-        _initialScale =
-          _imageRatio / heightToCropHeightRatio / (1 / _cropRatio);
+        _initialScale = _imageRatio / heightToCropHeightRatio / (1 / _cropRatio);
       }
     } else if (_cropOrientation === Orientation.portrait) {
       if (_imageOrientation === Orientation.portrait) {
@@ -142,7 +125,7 @@ const Crop = (props: CropProps): JSX.Element => {
 
     setMinZoom(_initialScale);
 
-    if (resizeMode === "contain") {
+    if (resizeMode === 'contain') {
       _lastScale = minZoom;
       scale.setValue(minZoom);
     } else {
@@ -169,15 +152,12 @@ const Crop = (props: CropProps): JSX.Element => {
 
   // start: pinch gesture handler
 
-  const onPinchGestureEvent = Animated.event(
-    [{ nativeEvent: { scale: trackScale } }],
-    {
-      useNativeDriver: false,
-    }
-  );
+  const onPinchGestureEvent = Animated.event([{nativeEvent: {scale: trackScale}}], {
+    useNativeDriver: false,
+  });
 
   const addScaleListener = () => {
-    trackScale.addListener(({ value }: { value: number }) => {
+    trackScale.addListener(({value}: {value: number}) => {
       // value always starts from 0
       scale.setValue(computeScale(value, _lastScale, maxZoom, minZoom));
     });
@@ -194,13 +174,7 @@ const Crop = (props: CropProps): JSX.Element => {
     if (scaleValue < _lastScale) {
       const translateXValue = getValue(translateX);
       const translateYValue = getValue(translateY);
-      const { max: maxTranslateX, min: minTranslateX } = translateRangeX(
-        imageSize,
-        cropArea,
-        width,
-        scaleValue,
-        minZoom
-      );
+      const {max: maxTranslateX, min: minTranslateX} = translateRangeX(imageSize, cropArea, width, scaleValue, minZoom);
 
       if (!isInRange(translateXValue, maxTranslateX, minTranslateX)) {
         const toValue = translateXValue > 0 ? maxTranslateX : minTranslateX;
@@ -211,13 +185,7 @@ const Crop = (props: CropProps): JSX.Element => {
         }).start(() => translateX.setValue(toValue));
       }
 
-      const { max: maxTranslateY, min: minTranslateY } = translateRangeY(
-        imageSize,
-        cropArea,
-        width,
-        scaleValue,
-        minZoom
-      );
+      const {max: maxTranslateY, min: minTranslateY} = translateRangeY(imageSize, cropArea, width, scaleValue, minZoom);
 
       if (!isInRange(translateYValue, maxTranslateY, minTranslateY)) {
         const toValue = translateYValue > 0 ? maxTranslateY : minTranslateY;
@@ -230,7 +198,7 @@ const Crop = (props: CropProps): JSX.Element => {
     }
   };
 
-  const onPinchGestureStateChange = ({ nativeEvent }: GestureEvent) => {
+  const onPinchGestureStateChange = ({nativeEvent}: GestureEvent) => {
     if (nativeEvent.oldState === State.ACTIVE) {
       resetTranslate();
       // resetTranslate depends on _lastScale
@@ -255,30 +223,18 @@ const Crop = (props: CropProps): JSX.Element => {
     ],
     {
       useNativeDriver: false,
-    }
+    },
   );
 
   const addTranslationListeners = () => {
-    trackTranslationX.addListener(({ value }: { value: number }) => {
-      const { max, min } = translateRangeX(
-        imageSize,
-        cropArea,
-        width,
-        getValue(scale),
-        minZoom
-      );
+    trackTranslationX.addListener(({value}: {value: number}) => {
+      const {max, min} = translateRangeX(imageSize, cropArea, width, getValue(scale), minZoom);
       const last = _lastTranslate.x;
       translateX.setValue(computeTranslation(value, last, max, min));
     });
 
-    trackTranslationY.addListener(({ value }: { value: number }) => {
-      const { max, min } = translateRangeY(
-        imageSize,
-        cropArea,
-        width,
-        getValue(scale),
-        minZoom
-      );
+    trackTranslationY.addListener(({value}: {value: number}) => {
+      const {max, min} = translateRangeY(imageSize, cropArea, width, getValue(scale), minZoom);
       const last = _lastTranslate.y;
       translateY.setValue(computeTranslation(value, last, max, min));
     });
@@ -289,99 +245,58 @@ const Crop = (props: CropProps): JSX.Element => {
     translateY.removeAllListeners();
   };
 
-  const onPanGestureStateChange = ({ nativeEvent }: GestureEvent) => {
+  const onPanGestureStateChange = ({nativeEvent}: GestureEvent) => {
     if (nativeEvent.oldState === State.ACTIVE) {
-      _lastTranslate = { x: getValue(translateX), y: getValue(translateY) };
+      _lastTranslate = {x: getValue(translateX), y: getValue(translateY)};
     }
   };
 
   // end: pan gesture handler
 
-  const cropImage = async (
-    quality: number = 1
-  ): Promise<{ uri: string; height: number; width: number }> => {
-    assert(!isInRange(quality, 1, 0), "quality must be between 0 and 1");
+  const cropImage = async (quality: number = 1): Promise<{uri: string; height: number; width: number}> => {
+    assert(!isInRange(quality, 1, 0), 'quality must be between 0 and 1');
 
     const scaleValue = getValue(scale);
     const translateXValue = getValue(translateX);
     const translateYValue = getValue(translateY);
 
-    const scaledWidth = computeScaledWidth(
-      width,
-      imageSize,
-      cropArea,
-      scaleValue,
-      minZoom
-    );
-    const scaledHeight = computeScaledHeight(
-      height,
-      imageSize,
-      cropArea,
-      scaleValue,
-      minZoom
-    );
+    const scaledWidth = computeScaledWidth(width, imageSize, cropArea, scaleValue, minZoom);
+    const scaledHeight = computeScaledHeight(height, imageSize, cropArea, scaleValue, minZoom);
     const scaleMultiplier = imageSize.width / scaledWidth;
 
-    const { max: maxTranslateX } = translateRangeX(
-      imageSize,
-      cropArea,
-      width,
-      scaleValue,
-      minZoom
-    );
-    const { max: maxTranslateY } = translateRangeY(
-      imageSize,
-      cropArea,
-      width,
-      scaleValue,
-      minZoom
-    );
+    const {max: maxTranslateX} = translateRangeX(imageSize, cropArea, width, scaleValue, minZoom);
+    const {max: maxTranslateY} = translateRangeY(imageSize, cropArea, width, scaleValue, minZoom);
 
-    const scaledSize = { width: scaledWidth, height: scaledHeight };
-    const translate = computeTranslate(
-      imageSize,
-      translateXValue,
-      translateYValue
-    );
-    const offset = computeOffset(
-      scaledSize,
-      imageSize,
-      translate,
-      maxTranslateX,
-      maxTranslateY,
-      scaleMultiplier
-    );
+    const scaledSize = {width: scaledWidth, height: scaledHeight};
+    const translate = computeTranslate(imageSize, translateXValue, translateYValue);
+    const offset = computeOffset(scaledSize, imageSize, translate, maxTranslateX, maxTranslateY, scaleMultiplier);
 
     const size = computeSize(cropArea, scaleMultiplier);
     const emitSize = computeSize(size, quality);
-    const cropData = { offset, size, displaySize: emitSize };
+    const cropData = {offset, size, displaySize: emitSize};
 
     try {
       const croppedImageUri = await ImageEditor.cropImage(source.uri, cropData);
-      return { uri: croppedImageUri, ...emitSize };
+      return {uri: croppedImageUri, ...emitSize};
     } catch (e) {
-      console.error("Failed to crop image!");
-      return { uri: source.uri, ...emitSize };
-      // throw e;
+      console.error('Failed to crop image!');
+      throw e;
     }
   };
 
-  const borderRadius =
-    cropShape === "circle" ? Math.max(cropArea.height, cropArea.width) : 0;
+  const borderRadius = cropShape === 'circle' ? Math.max(cropArea.height, cropArea.width) : 0;
 
   return (
     <PanGestureHandler
       minPointers={1}
       maxPointers={1}
       onGestureEvent={onPanGestureEvent}
-      onHandlerStateChange={onPanGestureStateChange}
-    >
+      onHandlerStateChange={onPanGestureStateChange}>
       <PinchGestureHandler
         minPointers={2}
         onGestureEvent={onPinchGestureEvent}
-        onHandlerStateChange={onPinchGestureStateChange}
-      >
-        <View style={{ width, height, backgroundColor }}>
+        onHandlerStateChange={onPinchGestureStateChange}>
+        <View style={{width, height, backgroundColor}}>
           <MaskedView
             style={styles.mask}
             maskElement={
@@ -391,8 +306,7 @@ const Crop = (props: CropProps): JSX.Element => {
                   {
                     backgroundColor: `${backgroundColor}${getAlpha(opacity)}`,
                   },
-                ]}
-              >
+                ]}>
                 <View
                   style={[
                     styles.transparentMask,
@@ -403,13 +317,11 @@ const Crop = (props: CropProps): JSX.Element => {
                   ]}
                 />
               </View>
-            }
-          >
+            }>
             <Animated.View
               style={{
-                transform: [{ translateX }, { translateY }],
-              }}
-            >
+                transform: [{translateX}, {translateY}],
+              }}>
               <Animated.Image
                 source={source}
                 style={[
@@ -417,7 +329,7 @@ const Crop = (props: CropProps): JSX.Element => {
                   {
                     width,
                     height,
-                    transform: [{ scale }],
+                    transform: [{scale}],
                   },
                 ]}
               />
@@ -426,10 +338,9 @@ const Crop = (props: CropProps): JSX.Element => {
           <View
             style={{
               ...StyleSheet.absoluteFillObject,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
             <View
               style={{
                 ...cropArea,
@@ -448,8 +359,8 @@ const Crop = (props: CropProps): JSX.Element => {
 export default Crop;
 
 const styles = StyleSheet.create({
-  mask: { flex: 1 },
-  transparentMask: { backgroundColor: "#FFFFFF" },
-  overlay: { flex: 1, justifyContent: "center", alignItems: "center" },
-  contain: { resizeMode: "contain" },
+  mask: {flex: 1},
+  transparentMask: {backgroundColor: '#FFFFFF'},
+  overlay: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+  contain: {resizeMode: 'contain'},
 });
