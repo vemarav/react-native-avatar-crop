@@ -1,6 +1,6 @@
 {
   "name": "react-native-avatar-crop",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Crop component to crop profile images",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,11 +25,8 @@
     "react-native-image-size": "*"
   },
   "peerDependencies": {
-    "@react-native-community/image-editor": "*",
-    "@react-native-community/masked-view": "*",
     "react": "*",
-    "react-native": "*",
-    "react-native-gesture-handler": "*"
+    "react-native": "*"
   },
   "devDependencies": {
     "@types/react": "^17.0.15",

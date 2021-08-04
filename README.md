@@ -1,35 +1,63 @@
 # react-native-avatar-crop
 
-## Demo
+Supports rect and circle cropping. Use `cropArea={{width, height}}` for custom aspect ratio.
+
+Download apk to see it in action, [click to download](https://github.com/vemarav/react-native-avatar-crop/releases/download/v1.0.5/app-release.apk)
 
 <br>
 
-![video](/screenshots/demo.gif)
+| Image Picker                                                                                | Network Image                                                                                |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| ![video](https://github.com/vemarav/react-native-avatar-crop/raw/main/screenshots/demo.gif) | ![video](https://github.com/vemarav/react-native-avatar-crop/raw/main/screenshots/demo2.gif) |
 
 ## Usage
 
 check [dependencies](https://www.npmjs.com/package/react-native-avatar-crop?activeTab=dependencies)
 
-```
+```jsx
+const component = (props) => {
+  const { uri, setUri } = useState("");
   let crop;
-  const {width: SCREEN_WIDTH} = Dimensions.get('window');
+  const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-  <Crop
-    source={uri}
-    cropShape={"circle"} // rect || circle
-    width={SCREEN_WIDTH}
-    height={SCREEN_WIDTH}
-    cropArea={{
-      width: SCREEN_WIDTH / 1.3,
-      height: SCREEN_WIDTH / 1.3,
-    }}
-    borderWidth={0}
-    backgroundColor={'#FFFFFF'}
-    opacity={0.7} // 0 till 1, default is 0.7
-    maxZoom= {3} // default 3
-    resizeMode={"contain"} // default "cover"
-    onCrop={cropCallback => (crop = cropCallback)} // returns a function
-  />
+  const cropImage = async () => {
+    // crop accepts quality, default is 1
+    // uri will have cropped image cache path
+    const { uri, width, height } = await crop(0.9);
+    setUri(uri);
+  };
+
+  return (
+    <View>
+      {uri ? (
+        <Image
+          source={{ uri }}
+          style={{
+            width: SCREEN_WIDTH,
+            height: SCREEN_WIDTH,
+            resizeMode: "contain",
+          }}
+        />
+      ) : null}
+      <Crop
+        source={props.uri}
+        cropShape={"circle"} // rect || circle
+        width={SCREEN_WIDTH} // default value
+        height={SCREEN_WIDTH} // defalt value
+        cropArea={{
+          width: SCREEN_WIDTH / 1.3, // required
+          height: SCREEN_WIDTH / 1.3, // required
+        }}
+        borderWidth={0} // default 2
+        backgroundColor={"#FFFFFF"} // default #FFFFFF, use same format
+        opacity={0.7} // between 0 and 1, default is 1
+        maxZoom={3} // default 3
+        resizeMode={"contain"} // default "cover"
+        onCrop={(cropCallback) => (crop = cropCallback)} // returns a function
+      />
+    </View>
+  );
+};
 ```
 
 see full example [here](https://github.com/vemarav/react-native-avatar-crop/blob/main/example/CropImage.tsx)
