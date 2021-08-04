@@ -49,7 +49,7 @@ const PickImage = ({navigation}: PickImageProps): JSX.Element => {
       </View>
       <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30}}>
         <TextInput
-          style={{flex: 1, borderBottomWidth: 1, padding: 10, marginRight: 20}}
+          style={{flex: 1, borderBottomWidth: 1, padding: 10, marginRight: 20, color: 'black'}}
           onChangeText={setUri}
           placeholder={'paste image url'}
         />
