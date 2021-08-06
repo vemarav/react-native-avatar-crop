@@ -1,5 +1,7 @@
 # react-native-avatar-crop
 
+⚠️ WARNING: The package is in development and may have bugs apart from what is shown in the demo.
+
 Supports rect and circle cropping. Use `cropArea={{width, height}}` for custom aspect ratio.
 
 Download apk to see it in action, [click to download](https://github.com/vemarav/react-native-avatar-crop/releases/download/v1.0.5/app-release.apk)
