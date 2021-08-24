@@ -25,13 +25,14 @@ const PickImage = ({navigation}: PickImageProps): JSX.Element => {
 
   const openImagePicker = () => {
     ImagePicker.openPicker({
+      forceJpg: false,
       mediaType: 'photo',
     }).then(onPickedImage);
   };
 
   const onPickedImage = (image: any) => {
     navigation.navigate(Routes.cropImage, {
-      uri: image.sourceURL,
+      uri: image.sourceURL || image.path,
       width: image.width,
       height: image.height,
     });
@@ -109,8 +110,8 @@ export default PickImage;
 
 const styles = StyleSheet.create({
   center: {
-    flex: 1,
     paddingTop: 40,
+    paddingBottom: 100,
     alignItems: 'center',
     backgroundColor: '#ffffff',
   },
