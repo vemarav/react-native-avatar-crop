@@ -1173,10 +1173,14 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/eslint-plugin/-/eslint-plugin-1.1.0.tgz#e42b1bef12d2415411519fd528e64b593b1363dc"
   integrity sha512-W/J0fNYVO01tioHjvYWQ9m6RgndVtbElzYozBq1ZPrHO/iCzlqoySHl4gO/fpCl9QEFjvJfjPgtPMTMlsoq5DQ==
 
-"@react-native-community/image-editor@*", "@react-native-community/image-editor@^2.3.0":
+"@react-native-community/image-editor@^2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@react-native-community/image-editor/-/image-editor-2.3.0.tgz#8ac6c3691fd2c762d2abeb84c01a3b201bac3b1e"
   integrity sha512-+UJY8WkTkfSkjoU5blQnEI7tTg11jJLoM+YojjiQpEopUaRlYQU4SZ9Zd6F6wWfvc9bjvIeMY6FlKuESK/q4fQ==
+
+"@react-native-community/image-editor@git+https://github.com/vemarav/react-native-image-editor.git":
+  version "2.3.0"
+  resolved "git+https://github.com/vemarav/react-native-image-editor.git#081db98b4c9b70d86247cbbd0b5ce916aa97ce64"
 
 "@react-native-community/masked-view@*", "@react-native-community/masked-view@^0.1.11":
   version "0.1.11"
@@ -5601,12 +5605,12 @@ react-is@^16.13.0, react-is@^16.7.0, react-is@^16.8.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react-native-avatar-crop@0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/react-native-avatar-crop/-/react-native-avatar-crop-0.0.7.tgz#58d7ba58755ca5a8715afeb3f97ced78c252753e"
-  integrity sha512-nmssr8mOxJo7BDXD8E/8ZM0BTfsTmZ15mypHDiaeeAUtNUxpuWvmxYrbqU3fOtYwnf8Om6S5FbURRe5wlMHm6g==
+react-native-avatar-crop@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-avatar-crop/-/react-native-avatar-crop-1.1.1.tgz#5ce2ea0c7c44a2bb30f58815380e23a97bc28bc3"
+  integrity sha512-Jbtutzj1Zk+4nLH9ieiozChK8GUeBeGw4UEJJH87OxhlOvYixeFUWOrombCTQFKKrq+q4kbo+THOMcxSteWAMg==
   dependencies:
-    "@react-native-community/image-editor" "*"
+    "@react-native-community/image-editor" "https://github.com/vemarav/react-native-image-editor"
     "@react-native-community/masked-view" "*"
     react-native-gesture-handler "*"
     react-native-image-size "*"
@@ -5631,10 +5635,10 @@ react-native-gesture-handler@*, react-native-gesture-handler@^1.10.3:
     invariant "^2.2.4"
     prop-types "^15.7.2"
 
-react-native-image-picker@^4.0.6:
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-4.0.6.tgz#0dfa5bb83bcf6ff58635ebb9201a185c2271e8cc"
-  integrity sha512-Pp3UWKUADuMG1mz12m6dSO/R2KnvXVEd77bldrfTMFpz4PFc4iVKo+bHeS79It0mUBezfzDMgfesg/OPLSugvQ==
+react-native-image-crop-picker@^0.36.2:
+  version "0.36.2"
+  resolved "https://registry.yarnpkg.com/react-native-image-crop-picker/-/react-native-image-crop-picker-0.36.2.tgz#fcb35c1a12d805bedbb6d94a87078e86a6c9b49f"
+  integrity sha512-cTauoEHHzx14ZHA7Pt65e7RVnbn1WRYQz2ufTZp9/05EtNDrdsXwNhgtXdWVFbOhYB8qgUFQjy2NelkBOHIH3g==
 
 react-native-image-size@*, react-native-image-size@^1.1.3:
   version "1.1.3"

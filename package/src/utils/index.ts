@@ -11,11 +11,24 @@ export type Range = {
   min: number;
 };
 
-export enum Orientation {
+enum Orientation {
   landscape,
   portrait,
   even,
 }
+
+enum Fit {
+  width,
+  height,
+}
+
+export const log = (obj: any) => {
+  console.info(JSON.stringify(obj, null, 2));
+};
+
+export const assert = (failsTest: boolean, message: string): Error | void => {
+  if (failsTest) throw new Error(message);
+};
 
 const round = (num: number, precision: number) => {
   try {
@@ -23,6 +36,38 @@ const round = (num: number, precision: number) => {
   } catch (e) {
     return num;
   }
+};
+
+export const isInRange = (value: number, max: number, min: number): boolean => min <= value && value <= max;
+
+export const getAlpha = (opacity: number): string => {
+  // #12345678 78 is the alpha value and the range is (0 < alpha < 100)
+  if (opacity === 1) {
+    return '';
+  } else {
+    return `${Math.ceil(opacity * 100)}`.padStart(2, '0').slice(-2);
+  }
+};
+
+export const getRatio = (imageSize: Size) => {
+  const {width, height} = imageSize;
+  return Math.max(width, height) / Math.min(width, height);
+};
+
+export const getValue = (animated: any): any => Number.parseFloat(JSON.stringify(animated));
+
+export const getOrientation = (size: Size) => {
+  if (size.width > size.height) {
+    return Orientation.landscape;
+  } else if (size.width < size.height) {
+    return Orientation.portrait;
+  } else {
+    return Orientation.even;
+  }
+};
+
+export const getAspectRatio = (size: Size) => {
+  return size.height / size.width;
 };
 
 export const computeImageSize = async (uri: string): Promise<Size> => {
@@ -38,44 +83,63 @@ export const computeImageSize = async (uri: string): Promise<Size> => {
   }
 };
 
-export const getAlpha = (opacity: number): string => {
-  // #12345678 78 is the alpha value and the range is (0 < alpha < 100)
-  if (opacity === 1) {
-    return '';
-  } else {
-    return `${Math.ceil(opacity * 100)}`.padStart(2, '0').slice(-2);
-  }
-};
-
-export const isInRange = (value: number, max: number, min: number): boolean => min <= value && value <= max;
-
-export const getRatio = ({width, height}: Size) => Math.max(width, height) / Math.min(width, height);
-
-export const getOrientation = ({width, height}: Size): Orientation => {
-  if (width > height) {
-    return Orientation.landscape;
-  } else if (width < height) {
-    return Orientation.portrait;
-  } else {
-    return Orientation.even;
-  }
-};
-
-export const computeScale = (current: number, last: number, maxZoom: number, minZoom: number): number => {
-  const next = last + current - 1;
-
-  if (isInRange(next, maxZoom, minZoom)) {
+export const computeScale = (current: number, last: number, max: number, min: number) => {
+  const next = current + last - 1;
+  if (isInRange(next, max, min)) {
     return next;
   }
 
-  if (next > maxZoom) {
-    return maxZoom;
+  if (next > max) {
+    return max;
   }
 
-  return minZoom;
+  return min;
 };
 
-export const computeTranslation = (current: number, last: number, max: number, min: number): number => {
+export const computeContain = (imageSize: Size, cropArea: Size) => {
+  const scale = imageSize.height / cropArea.height / (imageSize.width / cropArea.width);
+  return scale > 1 ? scale : 1 / scale;
+};
+
+export const computeCover = (scale: number, imageSize: Size, size: Size, cropArea: Size) => {
+  const imageOrientation = getOrientation(imageSize);
+
+  if (imageOrientation === Orientation.portrait) {
+    return scale * (size.width / cropArea.width);
+  } else {
+    return scale * (size.height / cropArea.height);
+  }
+};
+
+export const translateRangeX = (scale: number, imageSize: Size, cropArea: Size, minZoom: number) => {
+  const cropARatio = getAspectRatio(cropArea);
+  const imageARatio = getAspectRatio(imageSize);
+  const initialFit = cropARatio > imageARatio ? Fit.height : Fit.width;
+
+  if (initialFit === Fit.width) {
+    const imageOutsideBoxSize = (cropArea.width * scale) / minZoom - cropArea.width;
+    return {max: imageOutsideBoxSize / 2, min: -imageOutsideBoxSize / 2};
+  } else {
+    const imageOutsideBoxSize = cropArea.width * scale - cropArea.width;
+    return {max: imageOutsideBoxSize / 2, min: -imageOutsideBoxSize / 2};
+  }
+};
+
+export const translateRangeY = (scale: number, imageSize: Size, cropArea: Size, minZoom: number) => {
+  const cropARatio = getAspectRatio(cropArea);
+  const imageARatio = getAspectRatio(imageSize);
+  const initialFit = cropARatio < imageARatio ? Fit.width : Fit.height;
+
+  if (initialFit === Fit.height) {
+    const imageOutsideBoxSize = (cropArea.height * scale) / minZoom - cropArea.height;
+    return {max: imageOutsideBoxSize / 2, min: -imageOutsideBoxSize / 2};
+  } else {
+    const imageOutsideBoxSize = cropArea.height * scale - cropArea.height;
+    return {max: imageOutsideBoxSize / 2, min: -imageOutsideBoxSize / 2};
+  }
+};
+
+export const computeTranslation = (current: number, last: number, max: number, min: number) => {
   const next = current + last;
 
   if (isInRange(next, max, min)) {
@@ -89,62 +153,18 @@ export const computeTranslation = (current: number, last: number, max: number, m
   return min;
 };
 
-export const getValue = (animated: any): any => animated._value;
-
-export const translateRangeX = (
-  imageSize: Size,
-  cropArea: Size,
-  width: number,
-  scale: number,
-  minZoom: number,
-): Range => {
-  // returns the range in which user can pan image horizontally
-  const _imageOrientation = imageSize.width > imageSize.height ? Orientation.landscape : Orientation.portrait;
-  const _imageWidth = _imageOrientation === Orientation.landscape ? width : cropArea.width;
-  const _imageScale = _imageOrientation === Orientation.landscape ? scale : scale / minZoom;
-  const _scaledWidth = _imageWidth * _imageScale;
-  const _imageOutOfCropArea = (_scaledWidth - cropArea.width) / 2;
-  return {max: _imageOutOfCropArea, min: -_imageOutOfCropArea};
+export const computeScaledWidth = (scale: number, imageSize: Size, cropArea: Size, minZoom: number): number => {
+  const {max: maxTranslateX} = translateRangeX(minZoom, imageSize, cropArea, minZoom);
+  return maxTranslateX > 0 ? cropArea.width * scale : (cropArea.width * scale) / minZoom;
 };
 
-export const translateRangeY = (
-  imageSize: Size,
-  cropArea: Size,
-  height: number,
-  scale: number,
-  minZoom: number,
-): Range => {
-  // returns the range in which user can pan image horizontally
-  const _imageOrientation = imageSize.width < imageSize.height ? Orientation.landscape : Orientation.portrait;
-  const _imageHeight = _imageOrientation === Orientation.landscape ? height : cropArea.height;
-  const _imageScale = _imageOrientation === Orientation.landscape ? scale : scale / minZoom;
-  const _scaledHeight = _imageHeight * _imageScale;
-  const _imageOutOfCropArea = (_scaledHeight - cropArea.height) / 2;
-  return {max: _imageOutOfCropArea, min: -_imageOutOfCropArea};
+export const computeScaledHeight = (scale: number, imageSize: Size, cropArea: Size, minZoom: number): number => {
+  const {max: maxTranslateY} = translateRangeY(minZoom, imageSize, cropArea, minZoom);
+  return maxTranslateY > 0 ? cropArea.height * scale : (cropArea.height * scale) / minZoom;
 };
 
-export const assert = (failsTest: boolean, message: string): Error | void => {
-  if (failsTest) throw new Error(message);
-};
-
-export const computeScaledWidth = (
-  width: number,
-  imageSize: Size,
-  cropArea: Size,
-  scale: number,
-  minZoom: number,
-): number => {
-  return imageSize.width > imageSize.height ? width * scale : (cropArea.width * scale) / minZoom;
-};
-
-export const computeScaledHeight = (
-  height: number,
-  imageSize: Size,
-  cropArea: Size,
-  scale: number,
-  minZoom: number,
-): number => {
-  return imageSize.width < imageSize.height ? height * scale : (cropArea.height * scale) / minZoom;
+export const computeScaledMultiplier = (imageSize: Size, width: number) => {
+  return imageSize.width / width;
 };
 
 export const computeTranslate = (imageSize: Size, x: number, y: number) => {
@@ -181,21 +201,22 @@ export const computeSize = (size: Size, multiplier: number): Size => {
 };
 
 export default {
+  log,
+  Fit,
+  Orientation,
   assert,
   getValue,
-  getRatio,
   getAlpha,
-  isInRange,
-  Orientation,
-  computeSize,
-  computeScale,
-  computeOffset,
+  getRatio,
   getOrientation,
+  isInRange,
+  computeScale,
+  computeCover,
+  computeImageSize,
   translateRangeX,
   translateRangeY,
   computeTranslate,
-  computeImageSize,
-  computeTranslation,
   computeScaledWidth,
   computeScaledHeight,
+  computeScaledMultiplier,
 };
