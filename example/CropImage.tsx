@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, TouchableOpacity, Text, Dimensions} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Text, Dimensions, ScrollView} from 'react-native';
 import Routes from './Routes';
 import Crop from 'react-native-avatar-crop';
 
@@ -42,9 +42,8 @@ const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
 
   let crop = async (quality?: number) => ({uri: '', width: 0, height: 0});
 
-
   return (
-    <View style={styles.center}>
+    <ScrollView contentContainerStyle={styles.center}>
       <Crop
         source={{uri}}
         width={SCREEN_WIDTH}
@@ -62,7 +61,7 @@ const CropImage = ({route, navigation}: CropImageProps): JSX.Element => {
           <Text style={styles.btnText}>Save Crop</Text>
         </View>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 

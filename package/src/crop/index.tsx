@@ -5,24 +5,25 @@ import {Animated, View, Dimensions, StyleSheet} from 'react-native';
 import {State, PinchGestureHandler, PanGestureHandler, GestureEvent} from 'react-native-gesture-handler';
 
 import {
+  log,
   Size,
   assert,
-  getAlpha,
-  getRatio,
   getValue,
+  getAlpha,
   isInRange,
-  Orientation,
-  computeSize,
   computeScale,
-  computeOffset,
-  getOrientation,
+  computeCover,
+  computeContain,
   translateRangeX,
-  translateRangeY,
-  computeTranslate,
   computeImageSize,
   computeTranslation,
+  translateRangeY,
   computeScaledWidth,
   computeScaledHeight,
+  computeScaledMultiplier,
+  computeTranslate,
+  computeOffset,
+  computeSize,
 } from '../utils';
 
 const {width: DEFAULT_WIDTH} = Dimensions.get('window');
@@ -58,7 +59,7 @@ const Crop = (props: CropProps): JSX.Element => {
     width = DEFAULT_WIDTH,
     height = DEFAULT_WIDTH,
     borderWidth = 2,
-    maxZoom = 3,
+    maxZoom = 5,
     resizeMode = 'contain',
     onCrop,
   } = props;
@@ -70,15 +71,20 @@ const Crop = (props: CropProps): JSX.Element => {
 
   let _lastScale = 1;
   let _lastTranslate = {x: 0, y: 0};
-  const trackScale = new Animated.Value(_lastScale);
-  const [scale] = useState(new Animated.Value(_lastScale));
+
+  const trackScale = new Animated.Value(0);
+  const [scale] = useState(new Animated.Value(0));
+
   const [trackTranslationX] = useState(new Animated.Value(0));
   const [trackTranslationY] = useState(new Animated.Value(0));
+
   const [translateX] = useState(new Animated.Value(0));
   const [translateY] = useState(new Animated.Value(0));
+
   const [minZoom, setMinZoom] = useState(1);
 
   const imageSize = {width: NaN, height: NaN, rotation: 0};
+
   const setImageSize = ({width, height, rotation}: {width: number; height: number; rotation?: number}) => {
     imageSize.width = width;
     imageSize.height = height;
@@ -87,51 +93,16 @@ const Crop = (props: CropProps): JSX.Element => {
 
   const init = async () => {
     setImageSize(await computeImageSize(source.uri));
-    let _initialScale = 1;
-    const _componentRatio = getRatio({width, height});
-    const _imageRatio = getRatio(imageSize); // image aspect ratio
-    const _imageOrientation = getOrientation(imageSize);
-    const _cropRatio = getRatio(cropArea); // crop aspect ratio
-    const _cropOrientation = getOrientation(cropArea);
-
-    if (_cropOrientation === Orientation.landscape) {
-      if (_imageOrientation === Orientation.landscape) {
-        const widthToCropWidthRatio = width / cropArea.width;
-        _initialScale = _imageRatio / widthToCropWidthRatio / _cropRatio;
-      } else {
-        const heightToCropHeightRatio = height / cropArea.height;
-        _initialScale = _imageRatio / heightToCropHeightRatio / (1 / _cropRatio);
-      }
-    } else if (_cropOrientation === Orientation.portrait) {
-      if (_imageOrientation === Orientation.portrait) {
-        const heightToCropHeightRatio = height / cropArea.height;
-        _initialScale = _imageRatio / heightToCropHeightRatio / _cropRatio;
-      } else if (_imageOrientation === Orientation.landscape) {
-        const widthToCropWidthRatio = width / cropArea.width;
-        _initialScale = _imageRatio / widthToCropWidthRatio / (1 / _cropRatio);
-      } else {
-        const heightToCropHeightRatio = height / cropArea.height;
-        _initialScale = _imageRatio / heightToCropHeightRatio;
-      }
-    } else {
-      if (_imageOrientation === Orientation.landscape) {
-        const widthToCropWidthRatio = width / cropArea.width;
-        _initialScale = _imageRatio / widthToCropWidthRatio;
-      } else {
-        const heightToCropHeightRatio = height / cropArea.height;
-        _initialScale = _imageRatio / heightToCropHeightRatio;
-      }
-    }
+    const _initialScale = computeContain(imageSize, cropArea);
 
     setMinZoom(_initialScale);
+    scale.setValue(_initialScale);
 
-    if (resizeMode === 'contain') {
-      _lastScale = minZoom;
-      scale.setValue(minZoom);
-    } else {
-      _lastScale = _imageRatio / (1 / _componentRatio);
-      scale.setValue(_lastScale);
+    if (resizeMode === 'cover') {
+      scale.setValue(computeCover(getValue(scale), imageSize, {width, height}, cropArea));
     }
+
+    _lastScale = getValue(scale);
 
     // reset translation
     translateX.setValue(0);
@@ -174,7 +145,7 @@ const Crop = (props: CropProps): JSX.Element => {
     if (scaleValue < _lastScale) {
       const translateXValue = getValue(translateX);
       const translateYValue = getValue(translateY);
-      const {max: maxTranslateX, min: minTranslateX} = translateRangeX(imageSize, cropArea, width, scaleValue, minZoom);
+      const {max: maxTranslateX, min: minTranslateX} = translateRangeX(getValue(scale), imageSize, cropArea, minZoom);
 
       if (!isInRange(translateXValue, maxTranslateX, minTranslateX)) {
         const toValue = translateXValue > 0 ? maxTranslateX : minTranslateX;
@@ -185,7 +156,7 @@ const Crop = (props: CropProps): JSX.Element => {
         }).start(() => translateX.setValue(toValue));
       }
 
-      const {max: maxTranslateY, min: minTranslateY} = translateRangeY(imageSize, cropArea, width, scaleValue, minZoom);
+      const {max: maxTranslateY, min: minTranslateY} = translateRangeY(getValue(scale), imageSize, cropArea, minZoom);
 
       if (!isInRange(translateYValue, maxTranslateY, minTranslateY)) {
         const toValue = translateYValue > 0 ? maxTranslateY : minTranslateY;
@@ -228,13 +199,13 @@ const Crop = (props: CropProps): JSX.Element => {
 
   const addTranslationListeners = () => {
     trackTranslationX.addListener(({value}: {value: number}) => {
-      const {max, min} = translateRangeX(imageSize, cropArea, width, getValue(scale), minZoom);
+      const {max, min} = translateRangeX(getValue(scale), imageSize, cropArea, minZoom);
       const last = _lastTranslate.x;
       translateX.setValue(computeTranslation(value, last, max, min));
     });
 
     trackTranslationY.addListener(({value}: {value: number}) => {
-      const {max, min} = translateRangeY(imageSize, cropArea, width, getValue(scale), minZoom);
+      const {max, min} = translateRangeY(getValue(scale), imageSize, cropArea, minZoom);
       const last = _lastTranslate.y;
       translateY.setValue(computeTranslation(value, last, max, min));
     });
@@ -260,18 +231,18 @@ const Crop = (props: CropProps): JSX.Element => {
     const translateXValue = getValue(translateX);
     const translateYValue = getValue(translateY);
 
-    const scaledWidth = computeScaledWidth(width, imageSize, cropArea, scaleValue, minZoom);
-    const scaledHeight = computeScaledHeight(height, imageSize, cropArea, scaleValue, minZoom);
-    const scaleMultiplier = imageSize.width / scaledWidth;
-
-    const {max: maxTranslateX} = translateRangeX(imageSize, cropArea, width, scaleValue, minZoom);
-    const {max: maxTranslateY} = translateRangeY(imageSize, cropArea, width, scaleValue, minZoom);
+    const scaledWidth = computeScaledWidth(scaleValue, imageSize, cropArea, minZoom);
+    const scaledHeight = computeScaledHeight(scaleValue, imageSize, cropArea, minZoom);
+    const scaledMultiplier = computeScaledMultiplier(imageSize, scaledWidth);
 
     const scaledSize = {width: scaledWidth, height: scaledHeight};
     const translate = computeTranslate(imageSize, translateXValue, translateYValue);
-    const offset = computeOffset(scaledSize, imageSize, translate, maxTranslateX, maxTranslateY, scaleMultiplier);
 
-    const size = computeSize(cropArea, scaleMultiplier);
+    const {max: maxTranslateX} = translateRangeX(getValue(scale), imageSize, cropArea, minZoom);
+    const {max: maxTranslateY} = translateRangeY(getValue(scale), imageSize, cropArea, minZoom);
+
+    const offset = computeOffset(scaledSize, imageSize, translate, maxTranslateX, maxTranslateY, scaledMultiplier);
+    const size = computeSize(cropArea, scaledMultiplier);
     const emitSize = computeSize(size, quality);
     const cropData = {offset, size, displaySize: emitSize};
 
@@ -319,16 +290,18 @@ const Crop = (props: CropProps): JSX.Element => {
               </View>
             }>
             <Animated.View
-              style={{
-                transform: [{translateX}, {translateY}],
-              }}>
+              style={[
+                styles.center,
+                {
+                  transform: [{translateX}, {translateY}],
+                },
+              ]}>
               <Animated.Image
                 source={source}
                 style={[
                   styles.contain,
                   {
-                    width,
-                    height,
+                    ...cropArea,
                     transform: [{scale}],
                   },
                 ]}
@@ -360,6 +333,7 @@ export default Crop;
 
 const styles = StyleSheet.create({
   mask: {flex: 1},
+  center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
   transparentMask: {backgroundColor: '#FFFFFF'},
   overlay: {flex: 1, justifyContent: 'center', alignItems: 'center'},
   contain: {resizeMode: 'contain'},

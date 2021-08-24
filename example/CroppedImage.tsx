@@ -14,9 +14,8 @@ type CroppedImageProps = {
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
-const CroppedImage = ({route, navigation}: CroppedImageProps) => {
+const CroppedImage = ({route}: CroppedImageProps) => {
   const {uri, width, height} = route.params;
-  const aspectRatio = getRatio({width, height});
   const styles = StyleSheet.create({
     center: {
       flex: 1,

@@ -1,7 +1,16 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View, TextInput, Image, Dimensions, ScrollView} from 'react-native';
-import {Asset, ImagePickerResponse, launchImageLibrary} from 'react-native-image-picker';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  TextInput,
+  Image,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
 import Routes from './Routes';
+import ImagePicker from 'react-native-image-crop-picker';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
@@ -15,15 +24,17 @@ const PickImage = ({navigation}: PickImageProps): JSX.Element => {
   const [uri, setUri] = useState('');
 
   const openImagePicker = () => {
-    launchImageLibrary({mediaType: 'photo'}, ({assets}: ImagePickerResponse) => {
-      if (assets) {
-        onPickedImage(assets[0]);
-      }
-    });
+    ImagePicker.openPicker({
+      mediaType: 'photo',
+    }).then(onPickedImage);
   };
 
-  const onPickedImage = (image: Asset) => {
-    navigation.navigate(Routes.cropImage, image);
+  const onPickedImage = (image: any) => {
+    navigation.navigate(Routes.cropImage, {
+      uri: image.sourceURL,
+      width: image.width,
+      height: image.height,
+    });
   };
 
   const cropNetworkImage = () => {
@@ -42,19 +53,42 @@ const PickImage = ({navigation}: PickImageProps): JSX.Element => {
           backgroundColor: '#cccccc',
         }}>
         {uri ? (
-          <Image source={{uri}} style={{width: SCREEN_WIDTH, height: SCREEN_WIDTH, resizeMode: 'contain'}} />
+          <Image
+            source={{uri}}
+            style={{
+              width: SCREEN_WIDTH,
+              height: SCREEN_WIDTH,
+              resizeMode: 'contain',
+            }}
+          />
         ) : (
           <Text>after typing url, wait till image loads</Text>
         )}
       </View>
-      <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 30,
+        }}>
         <TextInput
-          style={{flex: 1, borderBottomWidth: 1, padding: 10, marginRight: 20, color: 'black'}}
+          style={{
+            flex: 1,
+            borderBottomWidth: 1,
+            padding: 10,
+            marginRight: 20,
+            color: 'black',
+          }}
           onChangeText={setUri}
           placeholder={'paste image url'}
+          autoCorrect={false}
+          autoCapitalize={"none"}
+          keyboardType={"url"}
         />
         <TouchableOpacity onPress={cropNetworkImage}>
-          <View style={{padding: 10, backgroundColor: '#0275d8', borderRadius: 4}}>
+          <View
+            style={{padding: 10, backgroundColor: '#0275d8', borderRadius: 4}}>
             <Text style={{color: 'white', fontWeight: '600'}}>Go</Text>
           </View>
         </TouchableOpacity>
