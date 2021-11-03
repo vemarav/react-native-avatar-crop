@@ -30,7 +30,7 @@ export const assert = (failsTest: boolean, message: string): Error | void => {
   if (failsTest) throw new Error(message);
 };
 
-const round = (num: number, precision: number) => {
+export const round = (num: number, precision: number) => {
   try {
     return Number(num.toFixed(precision));
   } catch (e) {

@@ -7,6 +7,7 @@ import {State, PinchGestureHandler, PanGestureHandler, GestureEvent} from 'react
 import {
   log,
   Size,
+  round,
   assert,
   getValue,
   getAlpha,
@@ -63,6 +64,9 @@ const Crop = (props: CropProps): JSX.Element => {
     resizeMode = 'contain',
     onCrop,
   } = props;
+
+  cropArea.width  = round(cropArea.width, 2);
+  cropArea.height = round(cropArea.height, 2);
 
   assert(!isInRange(opacity, 1, 0), 'opacity must be between 0 and 1');
   assert(maxZoom < 1, 'maxZoom must be greater than 1');

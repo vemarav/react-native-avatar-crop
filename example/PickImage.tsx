@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import Routes from './Routes';
-import ImagePicker from 'react-native-image-crop-picker';
+import ImagePicker, { Options } from 'react-native-image-crop-picker';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
@@ -22,13 +22,15 @@ type PickImageProps = {
 
 const PickImage = ({navigation}: PickImageProps): JSX.Element => {
   const [uri, setUri] = useState('');
+  const pickerOptions: Options = {forceJpg: true, mediaType: 'photo', cropping: false};
 
   const openImagePicker = () => {
-    ImagePicker.openPicker({
-      forceJpg: false,
-      mediaType: 'photo',
-    }).then(onPickedImage);
+    ImagePicker.openPicker(pickerOptions).then(onPickedImage);
   };
+
+  const openCameraPicker = () => {
+    ImagePicker.openCamera(pickerOptions).then(onPickedImage);
+  }
 
   const onPickedImage = (image: any) => {
     navigation.navigate(Routes.cropImage, {
@@ -97,11 +99,18 @@ const PickImage = ({navigation}: PickImageProps): JSX.Element => {
       <View style={{height: 100, justifyContent: 'center'}}>
         <Text style={{fontSize: 16}}>OR</Text>
       </View>
-      <TouchableOpacity onPress={openImagePicker}>
-        <View style={styles.btn}>
-          <Text style={styles.btnText}>Pick Image</Text>
-        </View>
-      </TouchableOpacity>
+      <View style = {{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <TouchableOpacity onPress={openImagePicker}>
+          <View style={styles.btn}>
+            <Text style={styles.btnText}>Photos</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={openCameraPicker}>
+          <View style={styles.btn}>
+            <Text style={styles.btnText}>Camera</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
