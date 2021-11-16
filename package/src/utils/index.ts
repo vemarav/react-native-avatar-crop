@@ -71,15 +71,11 @@ export const getAspectRatio = (size: Size) => {
 };
 
 export const computeImageSize = async (uri: string): Promise<Size> => {
-  try {
-    const {width, height, rotation} = await ImageSize.getSize(uri);
-    if (rotation === 90 || rotation === 270) {
-      return {width: height, height: width, rotation};
-    } else {
-      return {width, height, rotation};
-    }
-  } catch (e) {
-    throw e;
+  const {width, height, rotation} = await ImageSize.getSize(uri);
+  if (rotation === 90 || rotation === 270) {
+    return {width: height, height: width, rotation};
+  } else {
+    return {width, height, rotation};
   }
 };
 
