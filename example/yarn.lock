@@ -1178,14 +1178,19 @@
   resolved "https://registry.npmjs.org/@react-native-community/image-editor/-/image-editor-2.3.0.tgz"
   integrity sha512-+UJY8WkTkfSkjoU5blQnEI7tTg11jJLoM+YojjiQpEopUaRlYQU4SZ9Zd6F6wWfvc9bjvIeMY6FlKuESK/q4fQ==
 
-"@react-native-community/image-editor@git+https://github.com/vemarav/react-native-image-editor.git":
+"@react-native-community/image-editor@https://github.com/vemarav/react-native-image-editor":
   version "2.3.0"
-  resolved "git+https://github.com/vemarav/react-native-image-editor.git#081db98b4c9b70d86247cbbd0b5ce916aa97ce64"
+  resolved "https://github.com/vemarav/react-native-image-editor#081db98b4c9b70d86247cbbd0b5ce916aa97ce64"
 
-"@react-native-community/masked-view@*", "@react-native-community/masked-view@^0.1.11":
+"@react-native-community/masked-view@*":
   version "0.1.11"
   resolved "https://registry.npmjs.org/@react-native-community/masked-view/-/masked-view-0.1.11.tgz"
   integrity sha512-rQfMIGSR/1r/SyN87+VD8xHHzDYeHaJq6elOSCAD+0iLagXkSI2pfA0LmSXP21uw5i3em7GkkRjfJ8wpqWXZNw==
+
+"@react-native-masked-view/masked-view@^0.2.6":
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@react-native-masked-view/masked-view/-/masked-view-0.2.6.tgz#b26c52d5db3ad0926b13deea79c69620966a9221"
+  integrity sha512-303CxmetUmgiX9NSUxatZkNh9qTYYdiM8xkGf9I3Uj20U3eGY3M78ljeNQ4UVCJA+FNGS5nC1dtS9GjIqvB4dg==
 
 "@react-native/assets@1.0.0":
   version "1.0.0"

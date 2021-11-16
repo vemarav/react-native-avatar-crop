@@ -1,5 +1,5 @@
 import ImageEditor from '@react-native-community/image-editor';
-import MaskedView from '@react-native-community/masked-view';
+import MaskedView from '@react-native-masked-view/masked-view';
 import React, {useState, useEffect} from 'react';
 import {Animated, View, Dimensions, StyleSheet} from 'react-native';
 import {State, PinchGestureHandler, PanGestureHandler, GestureEvent} from 'react-native-gesture-handler';

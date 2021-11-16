@@ -20,7 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@react-native-community/image-editor": "https://github.com/vemarav/react-native-image-editor",
-    "@react-native-community/masked-view": "*",
+    "@react-native-masked-view/masked-view": "^0.2.6",
     "react-native-gesture-handler": "*",
     "react-native-image-size": "*"
   },
