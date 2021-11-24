@@ -114,15 +114,15 @@ const Crop = (props: CropProps): JSX.Element => {
     addScaleListener();
     addTranslationListeners();
     onCrop(cropImage);
+  };
+
+  useEffect(() => {
+    init();
 
     return () => {
       removeScaleListeners();
       removeTranslationListeners();
     };
-  };
-
-  useEffect(() => {
-    init();
   });
 
   // start: pinch gesture handler
