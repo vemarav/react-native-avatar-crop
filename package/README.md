@@ -15,18 +15,16 @@ Download apk to see it in action, [click to download](https://reactnativeavatarc
 npm
 
 ```
-npm install react-native-avatar-crop  @react-native-masked-view/masked-view  @react-native-gesture-handler --save
+npm install react-native-avatar-crop vemarav/react-native-image-editor react-native-image-size @react-native-masked-view/masked-view  @react-native-gesture-handler --save
 ```
 
 yarn
 
 ```
-yarn add react-native-avatar-crop  @react-native-masked-view/masked-view  @react-native-gesture-handler
+yarn add react-native-avatar-crop vemarav/react-native-image-editor react-native-image-size @react-native-masked-view/masked-view  @react-native-gesture-handler
 ```
 
 ## Usage
-
-check [dependencies](https://www.npmjs.com/package/react-native-avatar-crop?activeTab=dependencies)
 
 ```jsx
 const component = (props) => {
