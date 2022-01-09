@@ -12,6 +12,8 @@ Download apk to see it in action, [click to download](https://reactnativeavatarc
 
 ## Installation
 
+> Note: Please migrate to @react-native-masked-view/masked-view if using @react-native-community/masked-view
+
 npm
 
 ```

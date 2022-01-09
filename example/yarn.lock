@@ -5689,10 +5689,8 @@ react-is@^16.13.0, react-is@^16.7.0, react-is@^16.8.1:
   resolved "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react-native-avatar-crop@^1.3.3:
+"react-native-avatar-crop@file:../package":
   version "1.3.3"
-  resolved "https://registry.yarnpkg.com/react-native-avatar-crop/-/react-native-avatar-crop-1.3.3.tgz#25a9baf1f7c82e858007f02cd0b39123495ac89f"
-  integrity sha512-h8ucFsPpbB0SkPWp0K5DyvvrdzGuS9zbptscHKETGLZEjvLZ9+cJMxvwcB5+tB1XccAJm58cXKvyxzOGFmo8uw==
 
 react-native-codegen@^0.0.7:
   version "0.0.7"

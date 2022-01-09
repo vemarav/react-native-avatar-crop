@@ -10,8 +10,9 @@ Download apk to see it in action, [click to download](https://reactnativeavatarc
 | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | ![video](https://github.com/vemarav/react-native-avatar-crop/raw/main/screenshots/demo.gif) | ![video](https://github.com/vemarav/react-native-avatar-crop/raw/main/screenshots/demo2.gif) |
 
-
 ## Installation
+
+> Note: Please migrate to @react-native-masked-view/masked-view if using @react-native-community/masked-view
 
 npm
 

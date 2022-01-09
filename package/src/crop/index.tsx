@@ -8,7 +8,7 @@ import {
   GestureEvent,
 } from "react-native-gesture-handler";
 
-import MaskedView from "./masked";
+import MaskedView from "@react-native-masked-view/masked-view";
 import {
   Size,
   round,
