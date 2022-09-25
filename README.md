@@ -66,7 +66,7 @@ const component = (props) => {
         backgroundColor={"#FFFFFF"} // default #FFFFFF, use same format
         opacity={0.7} // between 0 and 1, default is 1
         maxZoom={3} // default 3
-        resizeMode={"contain"} // default "cover"
+        resizeMode={"cover"} // default "contain"
         onCrop={(cropCallback) => (crop = cropCallback)} // returns a function
       />
     </View>
