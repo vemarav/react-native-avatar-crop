@@ -128,8 +128,8 @@ const Crop = (props: CropProps): JSX.Element => {
     _lastScale = getValue(scale);
 
     // reset translation
-    translateX.setValue(0);
-    translateY.setValue(0);
+    // translateX.setValue(0);
+    // translateY.setValue(0);
     addScaleListener();
     addTranslationListeners();
     onCrop(cropImage);
